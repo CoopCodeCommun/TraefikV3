@@ -2,17 +2,18 @@ services:
   test_machine:
     image: traefik/whoami
     labels:
-      - "traefik.enable=true"
+      # requiered
+      - "traefik.enable=true" 
       - "traefik.docker.network=frontend"
       - "traefik.http.routers.test_machine.tls.certresolver=myresolver"
-      - "traefik.http.routers.test_machine.rule=Host(`$DOMAIN`)"
       - "traefik.http.services.test_machine.loadbalancer.server.port=80"
+      - "traefik.http.routers.test_machine.rule=Host(`$DOMAIN`)"
 
-      # en cas de header custom :
-      - "traefik.http.routers.test_machine.middlewares=test_custom_header"
-      - "traefik.http.middlewares.test_custom_header.headers.customFrameOptionsValue=ALLOW-FROM https://${DOMAIN}"
-      - "traefik.http.middlewares.test_custom_header.headers.customResponseHeaders.Strict-Transport-Security=max-age=15552000; includeSubDomains"
-      - "traefik.http.middlewares.test_custom_header.headers.contentSecurityPolicy=frame-ancestors 'self' ${DOMAIN} *.${DOMAIN}"
+      # Optionel : exemple en cas de besoin de headers supplémentaire :
+      - "traefik.http.routers.test_machine.middlewares=test_machine_custom_header"
+      - "traefik.http.middlewares.test_machine_custom_header.headers.customFrameOptionsValue=ALLOW"
+      - "traefik.http.middlewares.test_machine_custom_header.headers.customResponseHeaders.Strict-Transport-Security=max-age=15552000; includeSubDomains; preload;"
+      - "traefik.http.middlewares.test_machine_custom_header.headers.contentSecurityPolicy=frame-ancestors 'self' ${DOMAIN} *.${DOMAIN} nuage.${DOMAIN}"
       
     networks:
       - frontend
