@@ -2,33 +2,16 @@ services:
   traefik:
     image: traefik:munster
     container_name: traefik
-    restart: unless-stopped
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/traefik.yml
     networks:
       - frontend
-    command:
-      # - "--log.level=INFO"
-      - "--providers.docker=true"
-      - "--providers.docker.network=frontend"
-      - "--providers.docker.exposedByDefault=false"
-
-      - "--entrypoints.entrypoints-https.address=:443"
-      - "--entrypoints.entrypoints-http.address=:80"
-      - "--entrypoints.entrypoints-http.http.redirections.entryPoint.to=entrypoints-https"
-      - "--entrypoints.entrypoints-http.http.redirections.entryPoint.scheme=https"
-
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=jturbeaux@pm.me"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=entrypoints-http"
-
-      # Pour staging :
-      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
 
 networks:
   frontend:
