@@ -1,0 +1,29 @@
+## Static configuration
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    network: frontend # docker network create frontend
+    exposedByDefault: false # containers that do not have a traefik.enable=true label are ignored 
+
+entryPoints:
+  websecure:
+    address: ":443"
+  
+  web:
+    address: ":80"
+    http:
+      redirections: # enable redirecting of all incoming requests on 80 to 443
+        entryPoint:
+          to: websecure
+
+certificatesResolvers:
+  myresolver:
+    acme:
+      # caserver: "https://acme-staging-v02.api.letsencrypt.org/directory" # for staging server
+      tlsChallenge: {}
+      email: jturbeaux@pm.me
+      storage: "/letsencrypt/acme.json"
+      httpchallenge:
+        entryPoint:
+          websecure
