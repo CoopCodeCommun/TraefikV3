@@ -24,6 +24,6 @@ certificatesResolvers:
       tlsChallenge: {}
       email: jturbeaux@pm.me
       storage: "/letsencrypt/acme.json"
-      httpchallenge:
-        entryPoint:
-          websecure
+      # httpchallenge:
+        # entryPoint:
+          # websecure
