@@ -30,23 +30,19 @@ services:
       - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
     # On ne publie pas de port (usage interne à Docker réseau)
 
-  # logrotate:
-  #   image: blacklabelops/logrotate
-  #   environment:
-  #     - LOGS_DIRECTORIES=/var/log/traefik
-  #     - LOGROTATE_INTERVAL=daily
-  #     - LOGROTATE_COPIES=7
-  #   volumes:
-  #     - ./traefik_logs:/var/log/traefik
+  logrotate:
+    image: blacklabelops/logrotate
+    environment:
+      - LOGS_DIRECTORIES=/var/log/traefik
+      - LOGROTATE_INTERVAL=daily
+      - LOGROTATE_COPIES=7
+    volumes:
+      - ./traefik_logs:/var/log/traefik
 
 networks:
   frontend:
     external: true
 
-
-volumes:
-  traefik_logs:
-    driver: local
 
 # tuto : https://blog.levassb.ovh/post/crowdsec/
 
