@@ -10,7 +10,7 @@ services:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/traefik.yml:ro
-      - ./traefik_dynamic.yml:/traefik_dynamic.yml:ro
+#      - ./traefik_dynamic.yml:/traefik_dynamic.yml:ro
       - ./traefik_logs:/var/log/traefik
     environment:
       # OVH (DNS-01 via lego)

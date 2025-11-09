@@ -59,30 +59,10 @@ Ces variables sont utilisées par lego (la lib ACME intégrée à Traefik) pour 
 Référence: https://api.ovh.com/
 
 A. Créer l’Application (AK/AS)
-1. Allez sur https://api.ovh.com/createApp/
+1. Allez sur https://api.ovh.com/createToken/?GET=/auth/time&GET=/domain&GET=/domain/zone/*&GET=/domain/zone/*/record&POST=/domain/zone/*/record&POST=/domain/zone/*/refresh&PUT=/domain/zone/*/record/*&DELETE=/domain/zone/*/record/*
 2. Donnez un nom (ex: "Traefik DNS-01") et une description.
-3. Validez → vous obtenez `Application Key` (AK) et `Application Secret` (AS).
-
-B. Créer la Consumer Key (CK) avec permissions DNS
-Méthode la plus simple via l’API Explorer:
-1. Allez sur https://api.ovh.com/console/
-2. En haut, cliquez sur "Login" (authentifiez-vous).
-3. Dans la barre de recherche, tapez `POST /auth/credential`.
-4. Cliquez sur l’endpoint, puis "Try".
-5. Renseignez le champ `accessRules` avec les droits nécessaires pour votre zone:
-   Exemple de règles minimales pour gérer les enregistrements DNS de vos zones:
-   ```json
-   [
-     {"method": "GET", "path": "/domain/zone/*"},
-     {"method": "POST", "path": "/domain/zone/*"},
-     {"method": "PUT", "path": "/domain/zone/*"},
-     {"method": "DELETE", "path": "/domain/zone/*"}
-   ]
-   ```
-   Vous pouvez restreindre à une zone précise, ex: `/domain/zone/demo-tibillet.ovh/*`.
-6. Cliquez sur "Execute" → une URL de validation s’affiche.
-7. Ouvrez cette URL et validez la demande pour générer la `consumerKey`.
-8. Vous avez maintenant AK, AS et CK → placez-les dans `.env`.
+3. Modifiez le * pour que ça corresponde a votre DNS
+3. Validez → vous obtenez `Application Key` (AK) et `Application Secret` (AS) et OVH_CONSUMER_KEY
 
 Notes:
 - `OVH_ENDPOINT` selon votre compte/zone: `ovh-eu` (Europe), `ovh-ca` (Canada), `ovh-us` (USA), etc.
