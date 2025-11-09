@@ -55,6 +55,13 @@ certificatesResolvers:
       storage: "/letsencrypt/acme.json"
       tlsChallenge: {}
 
+  myresolver:
+    acme:
+      # caserver: "https://acme-staging-v02.api.letsencrypt.org/directory" # for staging server
+      tlsChallenge: {}
+      email: jturbeaux@pm.me
+      storage: "/letsencrypt/acme.json"
+
 # Ajout plugin CrowdSec (bouncer Traefik)
 experimental:
   plugins:
