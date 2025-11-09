@@ -32,10 +32,10 @@ services:
 #      - "traefik.http.routers.app-gandi.middlewares=crowdsec@file"
 
       # Router C — host exact agenda.nasjo.fr (TLS-ALPN)
-      - "traefik.http.routers.app-agenda.rule=Host(`agenda.nasjo.fr`)"
-      - "traefik.http.routers.app-agenda.entrypoints=websecure"
-      - "traefik.http.routers.app-agenda.tls=true"
-      - "traefik.http.routers.app-agenda.tls.certresolver=le-alpn"
+#      - "traefik.http.routers.app-agenda.rule=Host(`agenda.nasjo.fr`)"
+#      - "traefik.http.routers.app-agenda.entrypoints=websecure"
+#      - "traefik.http.routers.app-agenda.tls=true"
+#      - "traefik.http.routers.app-agenda.tls.certresolver=le-alpn"
 #      - "traefik.http.routers.app-agenda.middlewares=crowdsec@file"
 
 networks:
