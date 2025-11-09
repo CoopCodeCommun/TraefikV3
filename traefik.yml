@@ -44,7 +44,7 @@ experimental:
 
 
 accessLog:
-  filePath: "/var/log/traefik"
+  filePath: "/var/log/traefik/access.log"
   format: json
   filters:
     statusCodes:
