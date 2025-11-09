@@ -16,7 +16,7 @@ services:
       - traefik.http.routers.app-ovh.tls.certresolver=le-ovh
       - traefik.http.routers.app-ovh.tls.domains[0].main=tibillet.com
       - traefik.http.routers.app-ovh.tls.domains[0].sans=*.tibillet.com
-      - traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[a-zA-Z0-9-]+}.tibillet.com`) || Host(`tibillet.com`) || Host(`a-a.tibillet.com`) || Host(`lespass.tibillet.com`)
+      - traefik.http.routers.app-ovh.rule=HostRegexp(`^.+\.tibillet\.com$`)
 #      - traefik.http.routers.app-ovh.rule=Host(`a-a.demo-tibillet.ovh`) || Host(`lespass.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`)
 
 networks:
