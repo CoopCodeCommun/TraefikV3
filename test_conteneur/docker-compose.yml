@@ -10,7 +10,7 @@ services:
       - "traefik.http.routers.test_machine.rule=Host(`$DOMAIN`)"
 
       # crowdsec
-      - "traefik.http.routers.whoami.middlewares=crowdsec@file"
+      - "traefik.http.routers.test_machine.middlewares=crowdsec@file"
 
       # Optionel : exemple en cas de besoin de headers supplémentaire :
       - "traefik.http.routers.test_machine.middlewares=test_machine_custom_header"

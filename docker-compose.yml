@@ -47,3 +47,22 @@ networks:
 volumes:
   traefik_logs:
     driver: local
+
+# tuto : https://blog.levassb.ovh/post/crowdsec/
+
+# Post install :
+# docker exec -t crowdsec cscli bouncers add traefik-bouncer
+# -> noter la clé et la rajouter dans traefik_dynamic.yml
+# docker exec crowdsec cscli collections install crowdsecurity/traefik
+# ddo && dup
+
+
+# Tester les url des services et vérifier avec :
+# docker exec -t crowdsec cscli bouncer list
+# docker exec -t crowdsec cscli collections list
+# docker exec -t crowdsec cscli metrics # permet de vérifier la bonne prise en charge des logs
+# docker exec -t crowdsec cscli decisions list # ne retourne rien puisqu’il est peu probable que vous ayez déjà subi une attaque
+
+# Bannir manuellement une adresse IP:
+# docker exec -t crowdsec cscli decisions add --ip xxx.xxx.xxx.xxx
+# docker exec -t crowdsec cscli decisions delete -i xxx.xxx.xxx.xxx
