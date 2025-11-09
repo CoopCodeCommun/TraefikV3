@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:beaufort
+    image: traefik:latest
     container_name: traefik-wildcard
     restart: unless-stopped
     ports:
