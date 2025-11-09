@@ -9,6 +9,9 @@ providers:
 #    filename: /traefik_dynamic.yml
 #    watch: true
 
+log:
+  level: DEBUG
+
 entryPoints:
   web:
     address: ":80"
