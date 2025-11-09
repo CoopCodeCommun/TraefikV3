@@ -34,7 +34,7 @@ services:
       - "traefik.http.routers.app-agenda.entrypoints=websecure"
       - "traefik.http.routers.app-agenda.tls=true"
       - "traefik.http.routers.app-agenda.tls.certresolver=le-alpn"
-      - "traefik.http.routers.app-agenda.middlewares=crowdsec@file"
+#      - "traefik.http.routers.app-agenda.middlewares=crowdsec@file"
 
 networks:
   frontend:
