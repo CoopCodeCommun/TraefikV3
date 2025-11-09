@@ -7,15 +7,17 @@ providers:
     exposedByDefault: false # containers that do not have a traefik.enable=true label are ignored 
 
 entryPoints:
-  websecure:
-    address: ":443"
-  
   web:
     address: ":80"
     http:
       redirections: # enable redirecting of all incoming requests on 80 to 443
         entryPoint:
           to: websecure
+  websecure:
+    address: ":443"
+    http:
+      middlewares:
+        - crowdsec
 
 certificatesResolvers:
   myresolver:
@@ -27,3 +29,19 @@ certificatesResolvers:
       # httpchallenge:
         # entryPoint:
           # web
+
+
+# Ajout plugin CrowdSec
+experimental:
+  plugins:
+    crowdsec-bouncer-traefik-plugin:
+      moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+      version: "v1.4.5"    # adapte selon version stable sur https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+
+
+log:
+  level: INFO
+
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  bufferSize: 100

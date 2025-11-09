@@ -8,11 +8,37 @@ services:
       - "443:443"
     volumes:
       - ./letsencrypt:/letsencrypt
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/traefik.yml
+      - ./traefik_dynamic.yml:/traefik_dynamic.yml   # Ajouter un fichier dynamique pour plugin etc
+      - traefik_logs:/var/log/traefik          # pour que CrowdSec puisse lire les logs
     networks:
       - frontend
 
-networks:
-  frontend:
-    external: true
+
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    restart: always
+    volumes:
+      - traefik_logs:/var/log/traefik:ro # montage des logs traefik
+      - ./crowdsec/config:/etc/crowdsec/
+      - ./crowdsec/data:/var/lib/crowdsec/data
+    environment:
+      - TZ=Europe/Paris
+    networks:
+      - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
+    # On ne publie pas de port (usage interne à Docker réseau)
+
+  logrotate:
+    image: blacklabelops/logrotate
+    environment:
+      - LOGS_DIRECTORIES=/var/log/traefik
+      - LOGROTATE_INTERVAL=daily
+      - LOGROTATE_COPIES=7
+    volumes:
+      - traefik_logs:/var/log/traefik
+
+volumes:
+  traefik_logs:
+    driver: local
