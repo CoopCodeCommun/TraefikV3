@@ -60,5 +60,6 @@ networks:
 # docker exec -t crowdsec cscli decisions list # ne retourne rien puisqu’il est peu probable que vous ayez déjà subi une attaque
 
 # Bannir manuellement une adresse IP:
+# docker exec -t crowdsec cscli decisions list
 # docker exec -t crowdsec cscli decisions add --ip xxx.xxx.xxx.xxx
 # docker exec -t crowdsec cscli decisions delete -i xxx.xxx.xxx.xxx

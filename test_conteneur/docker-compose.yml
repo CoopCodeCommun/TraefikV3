@@ -13,10 +13,10 @@ services:
       - "traefik.http.routers.test_machine.middlewares=crowdsec@file"
 
       # Optionel : exemple en cas de besoin de headers supplémentaire :
-      - "traefik.http.routers.test_machine.middlewares=test_machine_custom_header"
-      - "traefik.http.middlewares.test_machine_custom_header.headers.customFrameOptionsValue=ALLOW"
-      - "traefik.http.middlewares.test_machine_custom_header.headers.customResponseHeaders.Strict-Transport-Security=max-age=15552000; includeSubDomains; preload;"
-      - "traefik.http.middlewares.test_machine_custom_header.headers.contentSecurityPolicy=frame-ancestors 'self' ${DOMAIN} *.${DOMAIN} nuage.${DOMAIN}"
+#      - "traefik.http.routers.test_machine.middlewares=crowdsec@file, test_machine_custom_header"
+#      - "traefik.http.middlewares.test_machine_custom_header.headers.customFrameOptionsValue=ALLOW"
+#      - "traefik.http.middlewares.test_machine_custom_header.headers.customResponseHeaders.Strict-Transport-Security=max-age=15552000; includeSubDomains; preload;"
+#      - "traefik.http.middlewares.test_machine_custom_header.headers.contentSecurityPolicy=frame-ancestors 'self' ${DOMAIN} *.${DOMAIN} nuage.${DOMAIN}"
       
     networks:
       - frontend
