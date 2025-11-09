@@ -10,14 +10,20 @@ services:
       - "traefik.docker.network=frontend"
       - "traefik.http.services.whoami-app.loadbalancer.server.port=80"
 
-      # Router A — tous les sous-domaines 1 niveau de demo-tibillet.ovh (OVH DNS-01)
-      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[a-zA-Z0-9-]+}.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`)"
-#      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[^.]+}.demo-tibillet.ovh`)"
+      # Router A — sous-domaines 1 niveau de demo-tibillet.ovh (OVH DNS-01)
+      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[^.]+}.demo-tibillet.ovh`)"
       - "traefik.http.routers.app-ovh.entrypoints=websecure"
       - "traefik.http.routers.app-ovh.tls=true"
       - "traefik.http.routers.app-ovh.tls.certresolver=le-ovh"
       - "traefik.http.routers.app-ovh.tls.domains[0].main=demo-tibillet.ovh"
       - "traefik.http.routers.app-ovh.tls.domains[0].sans=*.demo-tibillet.ovh"
+      - "traefik.http.routers.app-ovh.priority=100"
+      # Router A2 — apex demo-tibillet.ovh (séparé)
+      - "traefik.http.routers.app-ovh-apex.rule=Host(`demo-tibillet.ovh`)"
+      - "traefik.http.routers.app-ovh-apex.entrypoints=websecure"
+      - "traefik.http.routers.app-ovh-apex.tls=true"
+      - "traefik.http.routers.app-ovh-apex.tls.certresolver=le-ovh"
+      - "traefik.http.routers.app-ovh-apex.priority=110"
 #      - "traefik.http.routers.app-ovh.middlewares=crowdsec@file"
 
       # Router B — tous les sous-domaines 1 niveau de codecommun.coop (Gandi DNS-01)
