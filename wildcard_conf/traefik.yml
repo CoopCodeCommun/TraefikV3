@@ -5,9 +5,9 @@ providers:
     endpoint: "unix:///var/run/docker.sock"
     network: frontend
     exposedByDefault: false
-  file:
-    filename: /traefik_dynamic.yml
-    watch: true
+#  file:
+#    filename: /traefik_dynamic.yml
+#    watch: true
 
 entryPoints:
   web:

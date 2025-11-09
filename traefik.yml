@@ -6,9 +6,9 @@ providers:
     network: frontend # docker network create frontend
     exposedByDefault: false # containers that do not have a traefik.enable=true label are ignored 
 
-#  file:
-#    filename: /traefik_dynamic.yml
-#    watch: true
+  file:
+    filename: /traefik_dynamic.yml
+    watch: true
 
 entryPoints:
   web:
