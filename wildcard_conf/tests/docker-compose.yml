@@ -11,7 +11,7 @@ services:
       - "traefik.http.services.whoami-app.loadbalancer.server.port=80"
 
       # Router A — tous les sous-domaines 1 niveau de demo-tibillet.ovh (OVH DNS-01)
-      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{subdomain:[a-z]+}.demo-tibillet.ovh`)"
+#      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{subdomain:[a-z]+}.demo-tibillet.ovh`)"
 #      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{subdomain:[a-z]+}.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`)"
 #      - "traefik.http.routers.Router-v3.rule=HostRegexp(`[a-z]+\\.demo-tibillet\\.ovh`)"
 #      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[^.]+}.demo-tibillet.ovh`)"
@@ -20,7 +20,7 @@ services:
       - "traefik.http.routers.app-ovh.tls.certresolver=le-ovh"
       - "traefik.http.routers.app-ovh.tls.domains[0].main=demo-tibillet.ovh"
       - "traefik.http.routers.app-ovh.tls.domains[0].sans=*.demo-tibillet.ovh"
-      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[a-zA-Z0-9-]+}.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`)"
+      - "traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[a-zA-Z0-9-]+}.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`) || Host(`lespass.demo-tibillet.ovh`)"
 
       #      - "traefik.http.routers.app-ovh.middlewares=crowdsec@file"
 
