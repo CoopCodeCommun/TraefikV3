@@ -10,7 +10,7 @@ services:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/traefik.yml:ro
-#      - ./traefik_dynamic.yml:/traefik_dynamic.yml:ro
+      - ./traefik_dynamic.yml:/traefik_dynamic.yml:ro
       - ./traefik_logs:/var/log/traefik
     environment:
       # OVH (DNS-01 via lego)
@@ -23,6 +23,50 @@ services:
     networks:
       - frontend
 
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    restart: always
+    volumes:
+      - ./traefik_logs:/var/log/traefik:ro # montage des logs traefik
+      - ./crowdsec/config:/etc/crowdsec/
+      - ./crowdsec/data:/var/lib/crowdsec/data
+    environment:
+      - TZ=Europe/Paris
+    networks:
+      - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
+    # On ne publie pas de port (usage interne à Docker réseau)
+
+  logrotate:
+    image: blacklabelops/logrotate
+    environment:
+      - LOGS_DIRECTORIES=/var/log/traefik
+      - LOGROTATE_INTERVAL=daily
+      - LOGROTATE_COPIES=7
+    volumes:
+      - ./traefik_logs:/var/log/traefik
+
 networks:
   frontend:
     external: true
+
+
+# tuto : https://blog.levassb.ovh/post/crowdsec/
+
+# Post install :
+# docker exec -t crowdsec cscli bouncers add traefik-bouncer
+# -> noter la clé et la rajouter dans traefik_dynamic.yml
+# docker exec crowdsec cscli collections install crowdsecurity/traefik
+# ddo && dup
+
+
+# Tester les url des services et vérifier avec :
+# docker exec -t crowdsec cscli bouncer list
+# docker exec -t crowdsec cscli collections list
+# docker exec -t crowdsec cscli metrics # permet de vérifier la bonne prise en charge des logs
+# docker exec -t crowdsec cscli decisions list # ne retourne rien puisqu’il est peu probable que vous ayez déjà subi une attaque
+
+# Bannir manuellement une adresse IP:
+# docker exec -t crowdsec cscli decisions list
+# docker exec -t crowdsec cscli decisions add --ip xxx.xxx.xxx.xxx
+# docker exec -t crowdsec cscli decisions delete -i xxx.xxx.xxx.xxx
