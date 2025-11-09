@@ -17,7 +17,7 @@ entryPoints:
     address: ":443"
     http:
       middlewares:
-        - crowdsec
+        - crowdsec@file
 
 certificatesResolvers:
   myresolver:
