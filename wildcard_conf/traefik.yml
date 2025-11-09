@@ -18,15 +18,15 @@ entryPoints:
           to: websecure
   websecure:
     address: ":443"
-    http:
-      middlewares:
-        - crowdsec@file
+#    http:
+#      middlewares:
+#        - crowdsec@file
 
 # Résolveurs ACME : OVH (DNS-01), Gandi (DNS-01), et ALPN pour un host simple
 certificatesResolvers:
   le-ovh:
     acme:
-      email: admin@example.tld
+      email: jturbeaux@pm.me
       storage: "/letsencrypt/acme.json"
       dnsChallenge:
         provider: ovh
@@ -37,7 +37,7 @@ certificatesResolvers:
 
   le-gandi:
     acme:
-      email: admin@example.tld
+      email: jturbeaux@pm.me
       storage: "/letsencrypt/acme.json"
       dnsChallenge:
         provider: gandiv5
@@ -47,7 +47,7 @@ certificatesResolvers:
 
   le-alpn:
     acme:
-      email: admin@example.tld
+      email: jturbeaux@pm.me
       storage: "/letsencrypt/acme.json"
       tlsChallenge: {}
 
