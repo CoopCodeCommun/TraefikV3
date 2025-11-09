@@ -1,0 +1,65 @@
+## Traefik v3 — configuration statique (wildcard_conf)
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    network: frontend
+    exposedByDefault: false
+  file:
+    filename: /traefik_dynamic.yml
+    watch: true
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+  websecure:
+    address: ":443"
+    http:
+      middlewares:
+        - crowdsec@file
+
+# Résolveurs ACME : OVH (DNS-01), Gandi (DNS-01), et ALPN pour un host simple
+certificatesResolvers:
+  le-ovh:
+    acme:
+      email: admin@example.tld
+      storage: "/letsencrypt/acme.json"
+      dnsChallenge:
+        provider: ovh
+        # Optionnel: accélérer la résolution DNS durant le challenge
+#        resolvers:
+#          - "1.1.1.1:53"
+#          - "8.8.8.8:53"
+
+  le-gandi:
+    acme:
+      email: admin@example.tld
+      storage: "/letsencrypt/acme.json"
+      dnsChallenge:
+        provider: gandiv5
+#        resolvers:
+#          - "1.1.1.1:53"
+#          - "8.8.8.8:53"
+
+  le-alpn:
+    acme:
+      email: admin@example.tld
+      storage: "/letsencrypt/acme.json"
+      tlsChallenge: {}
+
+# Ajout plugin CrowdSec (bouncer Traefik)
+#experimental:
+#  plugins:
+#    crowdsec-bouncer-traefik-plugin:
+#      moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+#      version: "v1.4.5"
+
+# Logs d'accès (facultatif ici)
+#accessLog:
+#  filePath: "/var/log/traefik/access.log"
+#  format: json
+#  bufferingSize: 0

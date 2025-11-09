@@ -1,0 +1,28 @@
+services:
+  traefik:
+    image: traefik:chabichou
+    container_name: traefik-wildcard
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+      - ./traefik_dynamic.yml:/traefik_dynamic.yml:ro
+      - ./traefik_logs:/var/log/traefik
+    environment:
+      # OVH (DNS-01 via lego)
+      - OVH_APPLICATION_KEY=${OVH_APPLICATION_KEY}
+      - OVH_APPLICATION_SECRET=${OVH_APPLICATION_SECRET}
+      - OVH_CONSUMER_KEY=${OVH_CONSUMER_KEY}
+      - OVH_ENDPOINT=${OVH_ENDPOINT:-ovh-eu}
+      # Gandi (DNS-01 via lego)
+      - GANDI_API_KEY=${GANDI_API_KEY}
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

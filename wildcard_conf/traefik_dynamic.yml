@@ -1,0 +1,19 @@
+# Configuration dynamique (wildcard_conf)
+# Définition du middleware CrowdSec (bouncer Traefik) consommé par les routeurs via crowdsec@file.
+
+http:
+  middlewares:
+    crowdsec:
+      plugin:
+        crowdsec-bouncer-traefik-plugin:
+          enabled: true
+          logLevel: INFO
+          crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"
+          crowdsecLapiHost: "crowdsec:8080"           # service CrowdSec sur le réseau 'frontend'
+          crowdsecAppsecEnabled: false                 # activez AppSec seulement si déployé
+          crowdsecAppsecHost: "crowdsec:7422"
+          crowdsecAppsecFailureBlock: true
+          crowdsecAppsecUnreachableBlock: true
+
+  routers: {}
+  services: {}
