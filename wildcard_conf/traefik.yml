@@ -62,7 +62,7 @@ certificatesResolvers:
 #      version: "v1.4.5"
 
 # Logs d'accès (facultatif ici)
-#accessLog:
-#  filePath: "/var/log/traefik/access.log"
-#  format: json
-#  bufferingSize: 0
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: json
+  bufferingSize: 0
