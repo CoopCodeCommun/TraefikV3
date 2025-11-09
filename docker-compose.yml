@@ -39,6 +39,11 @@ services:
     volumes:
       - traefik_logs:/var/log/traefik
 
+networks:
+  frontend:
+    external: true
+
+    
 volumes:
   traefik_logs:
     driver: local
