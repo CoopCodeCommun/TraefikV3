@@ -13,6 +13,6 @@ http:
           crowdsecAppsecUnreachableBlock: true
 
   # Exemple d’application globale à un entryPoint
-  routers:
+  # routers:
   # tu peux créer un router “global” ou injecter le middleware dans chaque router
   # Mais plus simple est d’utiliser le `entryPoints.websecure.http.middlewares` (Traefik v3)
