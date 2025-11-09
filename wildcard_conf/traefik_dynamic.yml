@@ -1,6 +1,3 @@
-# Configuration dynamique (wildcard_conf)
-# Définition du middleware CrowdSec (bouncer Traefik) consommé par les routeurs via crowdsec@file.
-
 http:
   middlewares:
     crowdsec:
@@ -9,11 +6,13 @@ http:
           enabled: true
           logLevel: INFO
           crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"
-          crowdsecLapiHost: "crowdsec:8080"           # service CrowdSec sur le réseau 'frontend'
-          crowdsecAppsecEnabled: false                 # activez AppSec seulement si déployé
-          crowdsecAppsecHost: "crowdsec:7422"
+          crowdsecLapiHost: "crowdsec:8080"           # port LAPI par défaut
+          crowdsecAppsecEnabled: false                 # true si tu actives AppSec
+          crowdsecAppsecHost: "crowdsec:7422"         # si AppSec activé
           crowdsecAppsecFailureBlock: true
           crowdsecAppsecUnreachableBlock: true
 
-  routers: {}
-  services: {}
+  # Exemple d’application globale à un entryPoint
+  # routers:
+  # tu peux créer un router “global” ou injecter le middleware dans chaque router
+  # Mais plus simple est d’utiliser le `entryPoints.websecure.http.middlewares` (Traefik v3)
