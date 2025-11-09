@@ -17,7 +17,7 @@ services:
       - traefik.http.routers.app-ovh.tls.domains[0].main=demo-tibillet.ovh
       - traefik.http.routers.app-ovh.tls.domains[0].sans=*.demo-tibillet.ovh
 #      - traefik.http.routers.app-ovh.rule=HostRegexp(`{sub:[a-zA-Z0-9-]+}.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`) || Host(`a-a.demo-tibillet.ovh`) || Host(`lespass.demo-tibillet.ovh`)
-      - traefik.http.routers.app-ovh.rule=Host(`a-a.demo-tibillet.ovh`) || Host(`lespass.demo-tibillet.ovh`)
+      - traefik.http.routers.app-ovh.rule=Host(`a-a.demo-tibillet.ovh`) || Host(`lespass.demo-tibillet.ovh`) || Host(`demo-tibillet.ovh`)
 
 networks:
   frontend:
