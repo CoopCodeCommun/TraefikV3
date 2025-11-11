@@ -100,6 +100,11 @@ docker exec -t crowdsec cscli bouncer list
 
 ## Commands you may need
 
+- Check Metrics and file acquisition:
+```bash
+docker exec -t crowdsec cscli metrics
+```
+
 - List CrowdSec collections:
 ```bash
 docker exec -t crowdsec cscli collections list
