@@ -122,6 +122,11 @@ docker exec -t crowdsec cscli decisions add --ip 1.2.3.4
 docker exec -t crowdsec cscli decisions delete -i 1.2.3.4
 ```
 
+- Manually trust an IP:
+```bash
+docker exec -it crowdsec cscli decisions add --ip 1.2.3.4 --type whitelist --reason "trusted admin"
+```
+
 - Check Traefik logs:
 ```bash
 tail -f traefik_logs/access.log

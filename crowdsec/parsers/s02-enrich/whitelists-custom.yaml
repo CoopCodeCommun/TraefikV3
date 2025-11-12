@@ -1,0 +1,6 @@
+name: crowdsecurity/whitelists-custom
+description: "Whitelist des ip connues"
+whitelist:
+  reason: "Ip publiques de confiance"
+  ip: 
+    - "::1"
