@@ -118,12 +118,18 @@ docker exec -t crowdsec cscli decisions list
 - Manually ban/unban an IP:
 ```bash
 docker exec -t crowdsec cscli decisions add --ip 1.2.3.4
-Docker exec -t crowdsec cscli decisions delete -i 1.2.3.4
+docker exec -t crowdsec cscli decisions delete -i 1.2.3.4
 ```
 
 - Check Traefik logs:
 ```bash
 tail -f traefik_logs/access.log
+```
+
+- List and inspect alert :
+```bash
+docker exec -t crowdsec cscli alert list
+docker exec -t crowdsec cscli alerts inspect -d 56
 ```
 
 ---
@@ -205,6 +211,14 @@ If all the above points are fine for your context, the setup is OK.
   - Confirm the container is on the `frontend` network.
 
 ---
+
+## Source
+
+- https://blog.levassb.ovh/post/crowdsec/
+- https://blog.lrvt.de/configuring-crowdsec-with-traefik/
+
+---
+
 
 ## Clean up
 ```bash

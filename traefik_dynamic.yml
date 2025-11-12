@@ -5,12 +5,24 @@ http:
         crowdsec-bouncer-traefik-plugin:
           enabled: true
           logLevel: INFO
+          crowdsecMode: live
           crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"
           crowdsecLapiHost: "crowdsec:8080"           # port LAPI par défaut
           crowdsecAppsecEnabled: false                 # true si tu actives AppSec
           crowdsecAppsecHost: "crowdsec:7422"         # si AppSec activé
           crowdsecAppsecFailureBlock: true
           crowdsecAppsecUnreachableBlock: true
+          forwardedHeadersTrustedIPs:
+            # private class ranges
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+          clientTrustedIPs:
+            # private class ranges
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+
 
   # Exemple d’application globale à un entryPoint
   # routers:
