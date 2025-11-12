@@ -30,9 +30,10 @@ Main files:
 docker network create frontend
 ```
 
-2) Prepare Let’s Encrypt storage file :
+2) Prepare Let’s Encrypt storage file and copy dynamic conf :
 ```bash
 mkdir -p letsencrypt
+cp traefik_dynamic_exemple.yml traefik_dynamic.yml
 ```
 
 3) Start Traefik + CrowdSec:
