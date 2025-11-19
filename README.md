@@ -46,15 +46,16 @@ docker compose up -d
 docker exec -t crowdsec cscli bouncers add traefik-bouncer
 ```
 
-5) Put the key in `traefik_dynamic.yml`:
-- Edit `crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"`.
-- Save the file.
-- Traefik watches the file and will reload it.
-
-6) (Optional) Install the Traefik collection in CrowdSec:
+5) Install the Traefik collection in CrowdSec:
 ```bash
 docker exec -t crowdsec cscli collections install crowdsecurity/traefik
 ```
+
+6) Put the key in `traefik_dynamic.yml`:
+- Edit `crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"`.
+- Save the file.
+- docker compose down && docker compose up -d.
+
 
 7) Verify CrowdSec reads the logs:
 ```bash
