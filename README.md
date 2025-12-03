@@ -32,7 +32,7 @@ docker network create frontend
 
 2) Prepare Let’s Encrypt storage file and copy dynamic conf :
 ```bash
-mkdir -p letsencrypt
+mkdir -p letsencrypt traefik_logs
 cp traefik_dynamic_exemple.yml traefik_dynamic.yml
 ```
 
@@ -124,8 +124,15 @@ docker exec -t crowdsec cscli decisions delete -i 1.2.3.4
 ```
 
 - Manually trust an IP:
+#TODO: Check the best option ?
 ```bash
-docker exec -it crowdsec cscli decisions add --ip 1.2.3.4 --type whitelist --reason "trusted admin"
+# config : whitlelist uniquement ce qui est lu dans le fichier de log
+nano TraefikV3/crowdsec/config/parsers/s02-enrich/whitelists-custom.yaml
+
+# allowlist : plus générique et englobant
+docker exec -it crowdsec cscli allowlists create my_allowlist -d 'my allowlist'
+docker exec -it crowdsec cscli allowlist add my_allowlist 172.18.0.0/24
+cscli allowlist inspect my_allowlist
 ```
 
 - Check Traefik logs:
