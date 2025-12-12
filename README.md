@@ -41,15 +41,16 @@ cp traefik_dynamic_exemple.yml traefik_dynamic.yml
 docker compose up -d
 ```
 
-4) Create a CrowdSec bouncer key (copy the printed key):
+4) Install the Traefik collection in CrowdSec:
+```bash
+docker exec -t crowdsec cscli collections install crowdsecurity/traefik
+```
+
+5) Create a CrowdSec bouncer key (copy the printed key):
 ```bash
 docker exec -t crowdsec cscli bouncers add traefik-bouncer
 ```
 
-5) Install the Traefik collection in CrowdSec:
-```bash
-docker exec -t crowdsec cscli collections install crowdsecurity/traefik
-```
 
 6) Put the key in `traefik_dynamic.yml`:
 - Edit `crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"`.
@@ -132,9 +133,8 @@ nano TraefikV3/crowdsec/config/parsers/s02-enrich/whitelists-custom.yaml
 # allowlist : plus générique et englobant
 docker exec -it crowdsec cscli allowlists create my_allowlist -d 'my allowlist'
 docker exec -it crowdsec cscli allowlist add my_allowlist 172.18.0.0/24
-cscli allowlist inspect my_allowlist
 ```
-
+su
 - Check Traefik logs:
 ```bash
 tail -f traefik_logs/access.log
