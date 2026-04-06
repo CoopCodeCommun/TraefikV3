@@ -34,10 +34,9 @@ certificatesResolvers:
       storage: "/letsencrypt/acme.json"
       dnsChallenge:
         provider: ovh
-        # Optionnel: accélérer la résolution DNS durant le challenge
-#        resolvers:
-#          - "1.1.1.1:53"
-#          - "8.8.8.8:53"
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
 
   le-gandi:
     acme:
@@ -45,9 +44,9 @@ certificatesResolvers:
       storage: "/letsencrypt/acme.json"
       dnsChallenge:
         provider: gandiv5
-#        resolvers:
-#          - "1.1.1.1:53"
-#          - "8.8.8.8:53"
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
 
   le-alpn:
     acme:

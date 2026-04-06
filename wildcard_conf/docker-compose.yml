@@ -18,8 +18,8 @@ services:
       - OVH_APPLICATION_SECRET=${OVH_APPLICATION_SECRET}
       - OVH_CONSUMER_KEY=${OVH_CONSUMER_KEY}
       - OVH_ENDPOINT=${OVH_ENDPOINT:-ovh-eu}
-      # Gandi (DNS-01 via lego)
-      - GANDI_API_KEY=${GANDI_API_KEY}
+      # Gandi (DNS-01 via lego, gandiv5 provider)
+      - GANDIV5_PERSONAL_ACCESS_TOKEN=${GANDIV5_PERSONAL_ACCESS_TOKEN}
     networks:
       - frontend
 
