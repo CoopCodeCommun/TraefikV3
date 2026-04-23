@@ -34,6 +34,30 @@
 
 ## Quick Start
 
+### Without Wildcard :
+
+```bash
+# 1. Cloner le dépot
+git clone https://github.com/CoopCodeCommun/TraefikV3.git
+cd TraefikV3
+
+# 2. Créer le réseau Docker
+docker network create frontend
+
+# 3. Préparer les dossiers
+mkdir -p letsencrypt traefik_logs
+cp traefik_dynamic_exemple.yml traefik_dynamic.yml
+
+# 4. Configurer CrowdSec (voir étape 4 du tuto)
+docker compose up -d
+docker exec crowdsec cscli collections install crowdsecurity/traefik
+docker exec crowdsec cscli bouncers add traefik-bouncer
+# → copier la clé dans traefik_dynamic.yml, puis :
+docker compose restart crowdsec traefik
+```
+
+### Widlcard : 
+
 ```bash
 # 1. Cloner le dépot
 git clone https://github.com/CoopCodeCommun/TraefikV3.git
@@ -57,9 +81,6 @@ docker exec crowdsec cscli collections install crowdsecurity/traefik
 docker exec crowdsec cscli bouncers add traefik-bouncer
 # → copier la clé dans traefik_dynamic.yml, puis :
 docker compose restart crowdsec traefik
-
-# 7. Lancer le service de test
-cd tests && docker compose --env-file ../.env up -d
 ```
 
 ---
@@ -307,7 +328,7 @@ EOF
 # Créer le réseau Docker (si pas déjà fait)
 docker network create frontend
 
-# Cr��er les dossiers nécessaires
+# Créer les dossiers nécessaires
 mkdir -p wildcard_conf/letsencrypt wildcard_conf/traefik_logs
 
 # Copier le template de configuration dynamique
