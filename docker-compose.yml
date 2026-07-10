@@ -32,6 +32,7 @@ services:
 
   logrotate:
     image: blacklabelops/logrotate
+    restart: always
     environment:
       - LOGS_DIRECTORIES=/var/log/traefik
       - LOGROTATE_INTERVAL=daily
