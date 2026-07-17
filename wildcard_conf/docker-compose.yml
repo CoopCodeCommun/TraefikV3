@@ -12,16 +12,15 @@ services:
       - ./traefik.yml:/traefik.yml:ro
       - ./traefik_dynamic.yml:/traefik_dynamic.yml:ro
       - ./traefik_logs:/var/log/traefik
-    environment:
-      # OVH (DNS-01 via lego)
-      - OVH_APPLICATION_KEY=${OVH_APPLICATION_KEY}
-      - OVH_APPLICATION_SECRET=${OVH_APPLICATION_SECRET}
-      - OVH_CONSUMER_KEY=${OVH_CONSUMER_KEY}
-      - OVH_ENDPOINT=${OVH_ENDPOINT:-ovh-eu}
-      # Gandi (DNS-01 via lego, gandiv5 provider)
-      - GANDIV5_PERSONAL_ACCESS_TOKEN=${GANDIV5_PERSONAL_ACCESS_TOKEN}
+    # Clés d'API DNS-01 (OVH, Gandi) lues par lego. Voir .env.example.
+    env_file: .env
     networks:
       - frontend
+    logging:                # plafonne le stdout de Traefik (access.log est géré par logrotate)
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   crowdsec:
     image: crowdsecurity/crowdsec:latest
@@ -36,6 +35,11 @@ services:
     networks:
       - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
     # On ne publie pas de port (usage interne à Docker réseau)
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   logrotate:
     image: blacklabelops/logrotate
@@ -45,6 +49,11 @@ services:
       - LOGROTATE_COPIES=7
     volumes:
       - ./traefik_logs:/var/log/traefik
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   frontend:

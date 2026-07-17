@@ -14,6 +14,11 @@ services:
       - ./traefik_logs:/var/log/traefik          # pour que CrowdSec puisse lire les logs
     networks:
       - frontend
+    logging:                # plafonne le stdout de Traefik (access.log est géré par logrotate)
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 
   crowdsec:
@@ -29,6 +34,11 @@ services:
     networks:
       - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
     # On ne publie pas de port (usage interne à Docker réseau)
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   logrotate:
     image: blacklabelops/logrotate
@@ -39,6 +49,11 @@ services:
       - LOGROTATE_COPIES=7
     volumes:
       - ./traefik_logs:/var/log/traefik
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   frontend:

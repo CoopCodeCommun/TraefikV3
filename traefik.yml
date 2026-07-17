@@ -1,5 +1,8 @@
 ## Static configuration
 
+log:
+  level: INFO   # défaut Traefik = ERROR. DEBUG pour diagnostiquer un souci ACME.
+
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"

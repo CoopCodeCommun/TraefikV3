@@ -10,8 +10,8 @@ providers:
     filename: /traefik_dynamic.yml
     watch: true
 
-#log:
-#  level: DEBUG
+log:
+  level: INFO   # défaut Traefik = ERROR. DEBUG pour diagnostiquer un souci ACME/DNS-01.
 
 entryPoints:
   web:
