@@ -68,7 +68,7 @@ docker network create frontend
 
 # 3. Préparer les dossiers
 mkdir -p wildcard_conf/letsencrypt wildcard_conf/traefik_logs
-cp wildcard_conf/traefik_dynamic_exemple.yml wildcard_conf/traefik_dynamic.yml
+cp traefik_dynamic_exemple.yml wildcard_conf/traefik_dynamic.yml
 
 # 4. Créer le .env (voir la section "Configurer le .env" ci-dessous)
 nano wildcard_conf/.env
