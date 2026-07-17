@@ -85,64 +85,6 @@ docker compose restart crowdsec traefik
 
 ---
 
-## Architecture
-
-```
-Internet (ports 80/443)
-       |
-       v
-   Traefik v3
-       |
-       +-- HTTP :80 -> redirige vers HTTPS :443
-       |
-       +-- HTTPS :443
-       |     |
-       |     +-- Plugin CrowdSec (bouncer) -> decide allow/block
-       |     |
-       |     +-- Routeur app-ovh    -> *.domaine-ovh.fr    (cert wildcard OVH)
-       |     +-- Routeur app-gandi  -> *.domaine-gandi.fr  (cert wildcard Gandi)
-       |     +-- Routeur app-simple -> hote.autre.fr       (cert TLS challenge)
-       |     |
-       |     +-- Service backend (whoami, votre app...)
-       |
-       +-- Provider Docker (decouvre les conteneurs via le socket)
-       +-- Provider File  (traefik_dynamic.yml, watched)
-
-CrowdSec (interne, pas de port expose)
-       |
-       +-- Lit /var/log/traefik/access.log
-       +-- Analyse les patterns (brute force, CVE, scans...)
-       +-- Envoie les decisions au bouncer via LAPI :8080
-
-Logrotate
-       +-- Rotation quotidienne des logs (7 jours)
-```
-
-### Resolvers ACME
-
-| Resolver | Challenge | Wildcard | API DNS requise | Usage |
-|----------|-----------|----------|-----------------|-------|
-| `le-ovh` | DNS-01 | oui | OVH | `*.domaine.fr` pour domaines OVH |
-| `le-gandi` | DNS-01 | oui | Gandi | `*.domaine.fr` pour domaines Gandi |
-| `le-alpn` | TLS challenge | non | non | Hôte simple, n'importe quel registrar |
-
-> **TLS challenge** (TLS-ALPN-01) : Let's Encrypt se connecte sur le port 443, Traefik répond avec un certificat temporaire de validation, et le vrai certificat est émis. Il suffit que le domaine pointe vers le serveur. Aucune API DNS n'est nécessaire, mais il ne supporte pas les wildcards.
-
-### Contenu du dépot
-
-```
-wildcard_conf/                      # Configuration principale
-  ├── docker-compose.yml            #   Stack Traefik + CrowdSec + Logrotate
-  ├── traefik.yml                   #   Config statique Traefik
-  ├── traefik_dynamic_exemple.yml   #   Template config dynamique (a copier)
-  ├── crowdsec/config/acquis.yaml   #   Source de logs CrowdSec
-  └── tests/docker-compose.yml      #   Service de test whoami
-```
-
-> Le dossier racine contient aussi une configuration **simple** (TLS challenge uniquement, pas de wildcard). Utile si vous n'avez besoin que d'un certificat par domaine.
-
----
-
 ## Prérequis
 
 - Un serveur Linux avec **Docker** et **Docker Compose** installés
@@ -644,6 +586,65 @@ Vérifiez que `crowdsecLapiKey` dans `traefik_dynamic.yml` correspond bien à la
 - [CrowdSec Bouncer Traefik Plugin](https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin)
 - [OVH — Créer un token API](https://eu.api.ovh.com/createToken/)
 - [Gandi — Documentation API / PAT](https://api.gandi.net/docs/authentication/)
+
+
+---
+
+## Architecture
+
+```
+Internet (ports 80/443)
+       |
+       v
+   Traefik v3
+       |
+       +-- HTTP :80 -> redirige vers HTTPS :443
+       |
+       +-- HTTPS :443
+       |     |
+       |     +-- Plugin CrowdSec (bouncer) -> decide allow/block
+       |     |
+       |     +-- Routeur app-ovh    -> *.domaine-ovh.fr    (cert wildcard OVH)
+       |     +-- Routeur app-gandi  -> *.domaine-gandi.fr  (cert wildcard Gandi)
+       |     +-- Routeur app-simple -> hote.autre.fr       (cert TLS challenge)
+       |     |
+       |     +-- Service backend (whoami, votre app...)
+       |
+       +-- Provider Docker (decouvre les conteneurs via le socket)
+       +-- Provider File  (traefik_dynamic.yml, watched)
+
+CrowdSec (interne, pas de port expose)
+       |
+       +-- Lit /var/log/traefik/access.log
+       +-- Analyse les patterns (brute force, CVE, scans...)
+       +-- Envoie les decisions au bouncer via LAPI :8080
+
+Logrotate
+       +-- Rotation quotidienne des logs (7 jours)
+```
+
+### Resolvers ACME
+
+| Resolver | Challenge | Wildcard | API DNS requise | Usage |
+|----------|-----------|----------|-----------------|-------|
+| `le-ovh` | DNS-01 | oui | OVH | `*.domaine.fr` pour domaines OVH |
+| `le-gandi` | DNS-01 | oui | Gandi | `*.domaine.fr` pour domaines Gandi |
+| `le-alpn` | TLS challenge | non | non | Hôte simple, n'importe quel registrar |
+
+> **TLS challenge** (TLS-ALPN-01) : Let's Encrypt se connecte sur le port 443, Traefik répond avec un certificat temporaire de validation, et le vrai certificat est émis. Il suffit que le domaine pointe vers le serveur. Aucune API DNS n'est nécessaire, mais il ne supporte pas les wildcards.
+
+### Contenu du dépot
+
+```
+wildcard_conf/                      # Configuration principale
+  ├── docker-compose.yml            #   Stack Traefik + CrowdSec + Logrotate
+  ├── traefik.yml                   #   Config statique Traefik
+  ├── traefik_dynamic_exemple.yml   #   Template config dynamique (a copier)
+  ├── crowdsec/config/acquis.yaml   #   Source de logs CrowdSec
+  └── tests/docker-compose.yml      #   Service de test whoami
+```
+
+> Le dossier racine contient aussi une configuration **simple** (TLS challenge uniquement, pas de wildcard). Utile si vous n'avez besoin que d'un certificat par domaine.
 
 ---
 
