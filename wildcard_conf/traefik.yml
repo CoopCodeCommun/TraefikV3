@@ -13,6 +13,9 @@ providers:
 log:
   level: INFO   # défaut Traefik = ERROR. DEBUG pour diagnostiquer un souci ACME/DNS-01.
 
+ping: {}        # endpoint /ping sur l'entryPoint interne "traefik" (:8080), non publié.
+                # Requis par le healthcheck du docker-compose.
+
 entryPoints:
   web:
     address: ":80"

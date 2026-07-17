@@ -1,0 +1,25 @@
+# Secrets — ne jamais commiter
+.env
+traefik_dynamic.yml
+**/local_api_credentials.yaml
+**/online_api_credentials.yaml
+
+# Certificats ACME (contient les clés privées)
+letsencrypt/
+
+# Logs (contiennent les IP des visiteurs) et base CrowdSec
+traefik_logs/
+**/crowdsec/data/
+
+# CrowdSec : état généré par le conteneur au premier démarrage.
+# Seuls acquis.yaml et les whitelists custom sont versionnés.
+**/crowdsec/config/*
+!**/crowdsec/config/acquis.yaml
+!**/crowdsec/config/acquis.d/
+!**/crowdsec/config/parsers/
+**/crowdsec/config/parsers/**
+!**/crowdsec/config/parsers/**/
+!**/crowdsec/config/parsers/**/whitelists-custom.yaml
+
+# IDE
+.idea/

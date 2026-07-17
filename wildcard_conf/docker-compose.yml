@@ -1,6 +1,7 @@
 services:
   traefik:
-    image: traefik:ramequin
+    image: traefik:ramequin   # = branche v3.6 (le codename suit la mineure : patchs oui, 3.7 non).
+                              # Ne pas remplacer par v3/latest : sauterait de mineure sans prévenir.
     container_name: traefik-wildcard
     restart: unless-stopped
     ports:
@@ -16,6 +17,15 @@ services:
     env_file: .env
     networks:
       - frontend
+    depends_on:
+      crowdsec:
+        condition: service_healthy   # le plugin bouncer a besoin du LAPI dès le démarrage
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]   # nécessite `ping: {}` dans traefik.yml
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
     logging:                # plafonne le stdout de Traefik (access.log est géré par logrotate)
       driver: json-file
       options:
@@ -23,9 +33,9 @@ services:
         max-file: "3"
 
   crowdsec:
-    image: crowdsecurity/crowdsec:latest
+    image: crowdsecurity/crowdsec:latest   # màj : vérifier https://github.com/crowdsecurity/crowdsec/releases
     container_name: crowdsec
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./traefik_logs:/var/log/traefik:ro # montage des logs traefik
       - ./crowdsec/config:/etc/crowdsec/
@@ -35,6 +45,12 @@ services:
     networks:
       - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
     # On ne publie pas de port (usage interne à Docker réseau)
+    healthcheck:
+      test: ["CMD", "cscli", "lapi", "status"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s   # 1er démarrage : téléchargement du hub
     logging:
       driver: json-file
       options:
@@ -42,7 +58,9 @@ services:
         max-file: "3"
 
   logrotate:
-    image: blacklabelops/logrotate
+    image: blacklabelops/logrotate:latest   # dernier tag publié (2019), == latest. Image non maintenue.
+    container_name: logrotate
+    restart: unless-stopped
     environment:
       - LOGS_DIRECTORIES=/var/log/traefik
       - LOGROTATE_INTERVAL=daily

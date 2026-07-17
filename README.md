@@ -70,7 +70,9 @@ docker network create frontend
 mkdir -p wildcard_conf/letsencrypt wildcard_conf/traefik_logs
 cp traefik_dynamic_exemple.yml wildcard_conf/traefik_dynamic.yml
 
-# 4. Créer le .env (voir la section "Configurer le .env" ci-dessous)
+# 4. Créer le .env à partir de l'exemple, puis renseigner les clés API
+#    (voir la section "Configurer le .env" ci-dessous)
+cp wildcard_conf/env.example wildcard_conf/.env
 nano wildcard_conf/.env
 
 # 5. Lancer
@@ -226,35 +228,28 @@ Sur https://admin.gandi.net → **Organisations** → votre org → **Partage** 
 
 ### Étape 2 — Configurer le fichier `.env`
 
-Créez le fichier `.env` dans le dossier `wildcard_conf/` :
+Le dépot fournit un modèle. Copiez-le dans `wildcard_conf/.env`, puis remplacez les valeurs :
 
 ```bash
-cat > wildcard_conf/.env << 'EOF'
-# OVH API (DNS-01)
-OVH_APPLICATION_KEY=votre_application_key
-OVH_APPLICATION_SECRET=votre_application_secret
-OVH_CONSUMER_KEY=votre_consumer_key
-OVH_ENDPOINT=ovh-eu
-
-# Gandi API (DNS-01)
-GANDIV5_PERSONAL_ACCESS_TOKEN=votre_token_gandi
-
-# Domaine OVH
-DOMAIN=votre-domaine-ovh.fr
-DOMAIN_REGEX=^.+\.votre\-domaine\-ovh\.fr$$
-
-# Domaine Gandi
-DOMAIN_GANDI=votre-domaine-gandi.fr
-DOMAIN_GANDI_REGEX=^.+\.votre\-domaine\-gandi\.fr$$
-
-# Hôte simple (TLS challenge, pas de wildcard ni d'API DNS)
-DOMAIN_SIMPLE=sous-domaine.autre-registrar.fr
-EOF
+cp wildcard_conf/env.example wildcard_conf/.env
+nano wildcard_conf/.env
 ```
+
+Le fichier attend :
+
+| Variable | Rôle |
+|----------|------|
+| `OVH_APPLICATION_KEY`, `OVH_APPLICATION_SECRET`, `OVH_CONSUMER_KEY`, `OVH_ENDPOINT` | Clés API OVH (DNS-01) |
+| `GANDIV5_PERSONAL_ACCESS_TOKEN` | Token PAT Gandi (DNS-01) |
+| `DOMAIN`, `DOMAIN_REGEX` | Domaine OVH et sa regex de sous-domaines |
+| `DOMAIN_GANDI`, `DOMAIN_GANDI_REGEX` | Domaine Gandi et sa regex |
+| `DOMAIN_SIMPLE` | Hôte simple en TLS challenge (optionnel) |
 
 > Si vous n'utilisez qu'un seul provider (OVH ou Gandi), laissez les variables de l'autre vides ou omettez-les. De même, `DOMAIN_SIMPLE` est optionnel.
 
-**`DOMAIN_REGEX`** : c'est la regex qui matche tous les sous-domaines. Échappez les `.` et `-` avec `\`, et terminez par `$$` (le double `$` est l'échappement Docker Compose pour produire un `$` littéral).
+> **Le `.env` est obligatoire.** Traefik le charge via `env_file`, donc Docker Compose refuse de démarrer la stack si le fichier est absent (`env file ... not found`). C'est voulu : sans clés API, le challenge DNS-01 échouerait de toute façon, mais silencieusement.
+
+**`DOMAIN_REGEX`** : c'est la regex qui matche tous les sous-domaines. Échappez les `.` et `-` avec `\`, et terminez par `$$` — sans le double `$`, Docker Compose tenterait d'interpréter le `$` comme le début d'une variable. La valeur reste littéralement `...$$` dans le label, ce qui est sans effet : en regex Go, deux ancres de fin consécutives équivalent à une seule.
 
 | Domaine | `DOMAIN_REGEX` |
 |---------|-------------|
@@ -273,8 +268,8 @@ docker network create frontend
 # Créer les dossiers nécessaires
 mkdir -p wildcard_conf/letsencrypt wildcard_conf/traefik_logs
 
-# Copier le template de configuration dynamique
-cp wildcard_conf/traefik_dynamic_exemple.yml wildcard_conf/traefik_dynamic.yml
+# Copier le template de configuration dynamique (il est à la racine du dépot)
+cp traefik_dynamic_exemple.yml wildcard_conf/traefik_dynamic.yml
 ```
 
 ---
@@ -292,6 +287,14 @@ Trois conteneurs démarrent :
 - `traefik-wildcard` — le reverse proxy (ports 80/443)
 - `crowdsec` — l'analyseur de logs (pas de port exposé)
 - `logrotate` — rotation quotidienne des logs (7 jours de rétention)
+
+Traefik attend que CrowdSec soit **healthy** avant de démarrer (`depends_on: service_healthy`), pour que le plugin bouncer trouve le LAPI dès la première requête. Au tout premier lancement, CrowdSec télécharge son hub : comptez jusqu'à 30 secondes avant que Traefik ne démarre. Vérifiez l'état avec :
+
+```bash
+docker compose ps          # colonne STATUS : "(healthy)" attendu sur traefik et crowdsec
+```
+
+Les sondes utilisées : `traefik healthcheck --ping` (d'où le `ping: {}` dans `traefik.yml`) et `cscli lapi status`.
 
 #### 4.2 Installer la collection Traefik dans CrowdSec
 
@@ -499,7 +502,7 @@ cd wildcard_conf && docker compose down
 <summary><strong>Le certificat n'est pas émis</strong></summary>
 
 ```bash
-# Activer les logs DEBUG dans traefik.yml (décommenter log.level: DEBUG)
+# Dans traefik.yml, passer log.level de INFO à DEBUG,
 # puis redémarrer Traefik et consulter :
 docker logs traefik-wildcard 2>&1 | grep -i acme
 
@@ -570,10 +573,12 @@ Vérifiez que `crowdsecLapiKey` dans `traefik_dynamic.yml` correspond bien à la
 |---------|------|
 | `wildcard_conf/docker-compose.yml` | Stack Traefik + CrowdSec + Logrotate |
 | `wildcard_conf/traefik.yml` | Config statique : entrypoints, resolvers ACME, plugin CrowdSec |
-| `wildcard_conf/traefik_dynamic_exemple.yml` | Template config dynamique (copier en `traefik_dynamic.yml`) |
+| `traefik_dynamic_exemple.yml` | Template config dynamique (copier en `wildcard_conf/traefik_dynamic.yml`) |
+| `wildcard_conf/env.example` | Modèle du `.env` (copier en `wildcard_conf/.env`) |
 | `wildcard_conf/.env` | Secrets API + domaines (non commité) |
 | `wildcard_conf/crowdsec/config/acquis.yaml` | Source de logs pour CrowdSec |
 | `wildcard_conf/tests/docker-compose.yml` | Service de test whoami avec labels Traefik |
+| `.gitignore` | Exclut `.env`, `traefik_dynamic.yml`, `acme.json`, logs et données CrowdSec |
 
 ---
 
