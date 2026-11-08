@@ -46,7 +46,8 @@ experimental:
   plugins:
     crowdsec-bouncer-traefik-plugin:
       moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-      version: "v1.4.5"    # adapte selon version stable sur https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      version: "v1.8.1"    # adapte selon version stable sur https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+                           # (v1.4.5 -> v1.8.1 le 2026-11-08 ; v1.7.0 : BanHTMLFilePath/CaptchaHTMLFilePath renommes, non utilises ici)
 
 
 accessLog:
