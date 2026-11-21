@@ -1,6 +1,7 @@
 services:
   traefik:
-    image: traefik:ramequin   # = branche v3.6 (le codename suit la mineure : patchs oui, 3.7 non).
+    image: traefik:langres    # = branche v3.7 (le codename suit la mineure : patchs oui, 3.8 non).
+                              # 3.6 -> 3.7 le 2026-11-08 (ramequin -> langres), guide de migration lu : rien pour docker/file/acme.
                               # Ne pas remplacer par v3/latest : sauterait de mineure sans prévenir.
     container_name: traefik
     restart: unless-stopped
