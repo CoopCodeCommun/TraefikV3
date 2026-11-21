@@ -1,5 +1,12 @@
 ## Static configuration
 
+global:
+  # Traefik 3.7 : un visiteur peut envoyer X_Forwarded_For ou X.Auth.User, que
+  # Python/PHP/nginx lisent comme X-Forwarded-For / X-Auth-User (usurpation d'IP
+  # ou des en-tetes poses par Traefik). delete = les retirer, sans bloquer la
+  # requete (aucun navigateur n'en envoie).
+  aliasHeadersStrategy: delete
+
 log:
   level: INFO   # défaut Traefik = ERROR. DEBUG pour diagnostiquer un souci ACME.
 

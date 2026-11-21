@@ -42,6 +42,8 @@ services:
       - ./crowdsec/data:/var/lib/crowdsec/data
     environment:
       - TZ=Europe/Paris
+      - USE_WAL=true   # base sqlite en mode WAL : sinon le LAPI peut ne plus repondre
+                       # pendant l'import de la blocklist communautaire (avertissement au demarrage)
     networks:
       - frontend    # pour que le plugin Traefik puisse joindre l’API LAPI
     # On ne publie pas de port (usage interne à Docker réseau)
