@@ -71,6 +71,39 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Relais du journal d'acces vers la supervision. Traefik ecrit ses requetes
+  # dans un FICHIER (CrowdSec le lit, on n'y touche pas) : ce conteneur le relit
+  # et recopie chaque nouvelle ligne sur SA sortie, que l'agent de supervision
+  # de l'hote ramasse. Le label indique le format a l'agent : il decoupe le JSON
+  # en champs et l'envoie dans le flux « acces_web ».
+  #   -n 0 : seulement les nouvelles lignes ; -F : suit le fichier apres rotation ;
+  #   lecture seule, aucun reseau.
+  #   tail de GNU (debian) et PAS busybox : apres le copytruncate de logrotate
+  #   (fichier vide sur place), busybox reprend a son ancienne position et perd
+  #   le debut de la journee ; GNU detecte « file truncated » (teste).
+  # Contient les IP des visiteurs.
+  traefik-access:
+    image: debian:13-slim
+    restart: unless-stopped
+    command: ["tail", "-q", "-n", "0", "-F", "/var/log/traefik/access.log"]
+    volumes:
+      - ./traefik_logs:/var/log/traefik:ro
+    network_mode: none
+    labels:
+      - supervision.format=traefik-json
+    healthcheck:
+      # Pas de pgrep dans debian slim : on verifie que le journal reste lisible
+      # (si tail meurt, le conteneur s'arrete et redemarre tout seul).
+      test: ["CMD", "test", "-r", "/var/log/traefik/access.log"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 networks:
   frontend:
     external: true

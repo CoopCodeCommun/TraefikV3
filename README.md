@@ -287,6 +287,9 @@ Trois conteneurs démarrent :
 - `traefik-wildcard` — le reverse proxy (ports 80/443)
 - `crowdsec` — l'analyseur de logs (pas de port exposé)
 - `logrotate` — rotation quotidienne des logs (7 jours de rétention)
+- `traefik-access` — relais du journal d'accès vers la supervision (voir ci-dessous)
+
+**Supervision.** Traefik écrit ses requêtes dans `traefik_logs/access.log` (fichier lu par CrowdSec). Le conteneur `traefik-access` relit ce fichier et recopie chaque nouvelle ligne sur sa sortie ; l'agent de supervision de l'hôte (Vector, installé une fois par serveur, voir le dépôt `stack-service`, `hote/README.md`) la ramasse, reconnaît le label `supervision.format=traefik-json` et envoie les requêtes découpées en champs (IP, hôte, chemin sans `?…`, statut, durée) dans le flux `acces_web` d'OpenObserve. Aucun réseau, lecture seule ; sans agent sur l'hôte, il ne sert à rien mais ne gêne pas. Les requêtes bloquées par le bouncer CrowdSec y apparaissent en `statut=403`. Ajout sur une stack en place, sans couper Traefik : `docker compose up -d traefik-access`.
 
 Traefik attend que CrowdSec soit **healthy** avant de démarrer (`depends_on: service_healthy`), pour que le plugin bouncer trouve le LAPI dès la première requête. Au tout premier lancement, CrowdSec télécharge son hub : comptez jusqu'à 30 secondes avant que Traefik ne démarre. Vérifiez l'état avec :
 
@@ -626,6 +629,10 @@ CrowdSec (interne, pas de port expose)
 
 Logrotate
        +-- Rotation quotidienne des logs (7 jours)
+
+traefik-access (relais, aucun reseau)
+       +-- tail -F /var/log/traefik/access.log -> sa sortie
+       +-- l'agent de supervision de l'hote -> OpenObserve (flux acces_web)
 ```
 
 ### Resolvers ACME
@@ -642,7 +649,7 @@ Logrotate
 
 ```
 wildcard_conf/                      # Configuration principale
-  ├── docker-compose.yml            #   Stack Traefik + CrowdSec + Logrotate
+  ├── docker-compose.yml            #   Stack Traefik + CrowdSec + Logrotate + relais supervision
   ├── traefik.yml                   #   Config statique Traefik
   ├── traefik_dynamic_exemple.yml   #   Template config dynamique (a copier)
   ├── crowdsec/config/acquis.yaml   #   Source de logs CrowdSec
