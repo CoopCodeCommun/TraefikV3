@@ -47,6 +47,11 @@ services:
       - ./crowdsec/data:/var/lib/crowdsec/data
     environment:
       - TZ=Europe/Paris
+      # Liste blanche officielle Nextcloud : previews, vignettes, WebDAV, avatars...
+      # renvoient beaucoup de 404 legitimes, que http-probing (10 chemins en 404
+      # en ~100 s) prend pour un scan : vrais utilisateurs bannis. Installee (ou
+      # mise a jour) a chaque demarrage. Sans effet sur les autres services.
+      - PARSERS=crowdsecurity/nextcloud-whitelist
       - USE_WAL=true   # base sqlite en mode WAL : sinon le LAPI peut ne plus repondre
                        # pendant l'import de la blocklist communautaire (avertissement au demarrage)
     networks:
