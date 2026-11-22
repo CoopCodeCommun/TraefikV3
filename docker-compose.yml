@@ -39,6 +39,11 @@ services:
     volumes:
       - ./traefik_logs:/var/log/traefik:ro # montage des logs traefik
       - ./crowdsec/config:/etc/crowdsec/
+      # Scenario maison (ban a la 1re sonde de /.env, /.git/...), suivi par git.
+      # Fichier seul : apres un git pull qui le modifie, recreer crowdsec.
+      - ./crowdsec/scenarios/codecommun-sondes-secrets.yaml:/etc/crowdsec/scenarios/codecommun-sondes-secrets.yaml:ro
+      # Duree des bans (24 h, puis 72 h, puis 7 jours), suivie par git. Idem : recreer apres un pull.
+      - ./crowdsec/profiles/profiles.yaml:/etc/crowdsec/profiles.yaml:ro
       - ./crowdsec/data:/var/lib/crowdsec/data
     environment:
       - TZ=Europe/Paris

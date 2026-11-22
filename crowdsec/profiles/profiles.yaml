@@ -1,0 +1,25 @@
+# Profils de decision CrowdSec, suivis par git (remplace celui genere au premier
+# demarrage dans crowdsec/config/, ignore par git).
+# Fichier seul monte en lecture seule : apres un git pull qui le modifie,
+# recreer crowdsec (docker compose up -d --force-recreate crowdsec).
+#
+# Duree de ban progressive (CrowdSec garde l'historique des decisions ~7 jours) :
+#   1er ban : 24 h, 2e : 72 h, 3e et suivants : 7 jours.
+# Avant : 4 h fixes, un scanner revenait le lendemain matin.
+# Debannir : docker exec crowdsec cscli decisions delete --ip <IP>
+name: default_ip_remediation
+filters:
+ - Alert.Remediation == true && Alert.GetScope() == "Ip"
+decisions:
+ - type: ban
+   duration: 24h
+duration_expr: "GetDecisionsCount(Alert.GetValue()) == 0 ? '24h' : (GetDecisionsCount(Alert.GetValue()) == 1 ? '72h' : '168h')"
+on_success: break
+---
+name: default_range_remediation
+filters:
+ - Alert.Remediation == true && Alert.GetScope() == "Range"
+decisions:
+ - type: ban
+   duration: 24h
+on_success: break

@@ -463,6 +463,28 @@ docker exec crowdsec cscli bouncers list
 docker exec crowdsec cscli decisions list
 ```
 
+**Scénario maison `codecommun/sonde-secrets`**
+(`crowdsec/scenarios/codecommun-sondes-secrets.yaml`, monté dans les deux
+variantes) : il bannit une IP **dès sa première
+requête** sur un fichier de secrets ou un outil d'admin connu (`/.env`,
+`/.git/`, `/.aws/`, `phpinfo.php`, `phpmyadmin`, `vendor/phpunit`…). Les
+scénarios du hub attendent plusieurs essais, et le scanner a le temps de tester
+des centaines de chemins. Sur 15 jours de prod Lespass : 69 000 sondes de 858 IP,
+aucune venant d'un vrai visiteur. `wp-content` et `wp-login` ne sont **pas**
+concernés, car d'anciens liens WordPress circulent encore.
+- Vérifier : `docker exec crowdsec cscli scenarios list | grep codecommun`.
+- Après un `git pull` qui modifie le fichier : `docker compose up -d --force-recreate crowdsec`
+  (fichier monté seul : un simple restart garde l'ancienne version).
+- Un membre de l'équipe qui teste `/.env` sur nos sites se bannit lui-même :
+  `docker exec crowdsec cscli decisions delete --ip <son IP>`.
+
+**Durée des bans** (`crowdsec/profiles/profiles.yaml`, monté à la place du
+`profiles.yaml` généré) : 24 h au premier ban, 72 h au deuxième, 7 jours ensuite.
+CrowdSec garde l'historique des décisions environ 7 jours. Avant, c'était 4 h fixes,
+et les mêmes scanners revenaient toute la journée. Même règle après un `git pull` :
+recréer crowdsec. Le mode `live` du bouncer est gardé exprès : un nouveau ban
+s'applique tout de suite, au prix de 30 à 50 ms sur la première requête d'un visiteur.
+
 ---
 
 ## Commandes utiles
