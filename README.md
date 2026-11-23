@@ -485,6 +485,17 @@ et les mêmes scanners revenaient toute la journée. Même règle après un `git
 recréer crowdsec. Le mode `live` du bouncer est gardé exprès : un nouveau ban
 s'applique tout de suite, au prix de 30 à 50 ms sur la première requête d'un visiteur.
 
+**Délai d'application d'un ban** (`defaultDecisionSeconds: 5` dans
+`traefik_dynamic.yml`) : en mode `live`, le bouncer garde en cache le verdict
+« IP propre ». Par défaut, il le garde 60 s : un robot banni pendant une rafale
+était encore servi jusqu'à une minute (constaté : 40 IP sur une nuit, jusqu'à
+300 requêtes chacune après leur ban). À 5 s, ça coûte une requête locale à
+CrowdSec par IP toutes les 5 s. `traefik_dynamic.yml` n'est pas versionné (il
+contient la clé) : ajouter la ligne à la main sous `crowdsecMode: live`. Traefik
+relit le fichier tout seul (`watch: true`), sans redémarrage. Éditer avec `nano`
+(qui réécrit le même fichier) : le fichier est monté seul, un éditeur qui le
+remplace n'est pas vu par le conteneur.
+
 ---
 
 ## Commandes utiles
