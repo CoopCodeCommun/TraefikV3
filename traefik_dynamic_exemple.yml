@@ -6,6 +6,7 @@ http:
           enabled: true
           logLevel: INFO
           crowdsecMode: live
+          defaultDecisionSeconds: 5                   # live : verdict garde 5 s en cache (60 s par defaut : un banni passait encore jusqu a 1 min)
           crowdsecLapiKey: "YOUR_GENERATED_BOUNCER_API_KEY_FROM_CROWDSEC"
           crowdsecLapiHost: "crowdsec:8080"           # port LAPI par défaut
           crowdsecAppsecEnabled: false                 # true si tu actives AppSec
