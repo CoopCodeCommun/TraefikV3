@@ -1,0 +1,36 @@
+# Code Commun : liste blanche des 403 de l'API d'admin Ghost.
+# En ouvrant /ghost/ sans session, l'appli d'admin demande d'un coup
+# /ghost/api/admin/settings/, users/me/ et config/ : Ghost repond 403, c'est
+# normal. Mais http-admin-interface-probing (403/404 sur un chemin qui
+# CONTIENT "/admin", 3 chemins differents en 10 s) y voit un scanner et
+# bannit. Constate le 23/11/2026 sur ccc-vm1
+# (news.universitepopulairedevilleurbanne.org, 3 evenements en 7 ms) ; les
+# memes appels venaient de 3 IP differentes.
+#
+# Tous les verbes : une fois l'IP bannie, le bouncer repond 403 et CrowdSec
+# relit ces 403. L'admin Ghost reste ouvert boucle (sauvegarde automatique :
+# 865 POST /ghost/api/admin/posts/ en 6 min le 23/11), et http-generic-403-bf
+# recreait une decision de 7 jours chaque minute.
+#
+# Motif etroit :
+#  - reponse 403, chemin qui commence par /ghost/api/admin/ ;
+#  - SAUF la connexion (POST /ghost/api/admin/session) : elle reste comptee
+#    (Ghost limite aussi lui-meme les essais, en 429) ;
+#  - pas de "..", de "%2e" ni de double encodage ("%25") dans la requete.
+# Les 404 sous /ghost/api/admin/ restent comptes, comme /admin, /wp-admin,
+# /phpmyadmin...
+# Non couvert : Ghost installe dans un sous-dossier (/blog/ghost/...).
+# Valable pour toutes les instances : aucun nom d'hote dans le motif.
+# Fichier seul monte dans le conteneur : apres un git pull qui le modifie,
+# recreer crowdsec.
+name: codecommun/ghost-whitelist
+description: "Ignore les 403 de l'API d'admin Ghost hors connexion (faux positifs d'admin-probing)"
+filter: "evt.Meta.service == 'http' && evt.Meta.log_type in ['http_access-log', 'http_error-log']"
+whitelist:
+  reason: "API d'admin Ghost en 403"
+  expression:
+    - |
+      evt.Meta.http_status == '403' &&
+      evt.Meta.http_path startsWith '/ghost/api/admin/' &&
+      !(evt.Parsed.verb == 'POST' && evt.Meta.http_path startsWith '/ghost/api/admin/session') &&
+      !(evt.Meta.http_path matches '(?i)(\\.\\.|%2e|%25)')

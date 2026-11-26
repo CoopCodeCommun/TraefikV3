@@ -1,0 +1,43 @@
+# Code Commun : liste blanche des fichiers que charge l'editeur OnlyOffice.
+# A l'ouverture d'un document, le navigateur charge environ 260 fichiers en
+# 3 s : gabarits .template, .json, .wasm, polices sans extension (fonts/001),
+# Editor.bin. CrowdSec ne les classe pas en "statiques" (il ne reconnait que
+# .js, .css, .png...) : http-crawl-non_statics (40 fichiers differents en
+# rafale) y voit un robot et bannit l'utilisateur 24 h, sur TOUS les services
+# derriere ce Traefik. Constate le 24/11/2026 sur miete-aorus (onlyoffice.lamiete.fr,
+# 46 evenements en 2,8 s, en ouvrant un tableur depuis Nextcloud).
+#
+# La liste blanche Nextcloud du hub (PARSERS= dans le compose) ne couvre pas
+# OnlyOffice. Celle-ci reste etroite, pour ne pas cacher les vrais scanners
+# (qui sondent aussi onlyoffice.* : /.env, /.git, /actuator...) :
+#  - GET et HEAD seulement (ce que compte http-crawl-non_statics) ;
+#  - chemins prefixes par la version d'OnlyOffice (/10.0.0-1f36.../web-apps/...)
+#    et /cache/files/data/ (Editor.bin, vignettes) : ils ne menent qu'aux
+#    fichiers d'OnlyOffice. Le prefixe n'est pas un secret (OnlyOffice accepte
+#    n'importe quelle version), d'ou la condition suivante ;
+#  - reponse servie (200, 206, 304 ; 101 pour le websocket de doc/) : un
+#    scanner qui invente des chemins recoit des 404 et reste compte ;
+#  - pas de "..", de "%2e" ni de double encodage ("%25") dans la requete.
+#    Les autres motifs de traversal ou d'injection en query string
+#    (?file=/etc/passwd) ne sont pas filtres : il faudrait en plus qu'OnlyOffice
+#    reponde 200, il ne sert que ses propres fichiers.
+# Non couverts (absents du trafic actuel) : OnlyOffice 7.x avec /cache/files/<id>/
+# sans data/, OnlyOffice servi dans un sous-dossier.
+# Valable pour toutes les instances : aucun nom d'hote dans le motif.
+# Fichier seul monte dans le conteneur : apres un git pull qui le modifie,
+# recreer crowdsec.
+name: codecommun/onlyoffice-whitelist
+description: "Ignore les fichiers charges par l'editeur OnlyOffice (faux positifs de crawl)"
+filter: "evt.Meta.service == 'http' && evt.Meta.log_type in ['http_access-log', 'http_error-log']"
+whitelist:
+  reason: "Fichiers de l'editeur OnlyOffice"
+  expression:
+    - |
+      evt.Parsed.verb in ['GET', 'HEAD'] &&
+      evt.Meta.http_status in ['101', '200', '206', '304'] &&
+      !(evt.Meta.http_path matches '(?i)(\\.\\.|%2e|%25)') &&
+      (
+        evt.Meta.http_path matches '^/[0-9]+\\.[0-9]+\\.[0-9]+-[0-9a-f]+/(web-apps|sdkjs|sdkjs-plugins|fonts|dictionaries|doc)/' ||
+        evt.Meta.http_path matches '^/[0-9]+\\.[0-9]+\\.[0-9]+-[0-9a-f]+/(plugins|themes)\\.json' ||
+        evt.Meta.http_path matches '^/cache/files/data/'
+      )

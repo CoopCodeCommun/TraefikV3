@@ -44,6 +44,12 @@ services:
       - ./crowdsec/scenarios/codecommun-sondes-secrets.yaml:/etc/crowdsec/scenarios/codecommun-sondes-secrets.yaml:ro
       # Duree des bans (24 h, puis 72 h, puis 7 jours), suivie par git. Idem : recreer apres un pull.
       - ./crowdsec/profiles/profiles.yaml:/etc/crowdsec/profiles.yaml:ro
+      # Liste blanche maison : fichiers de l'editeur OnlyOffice (gabarits, polices,
+      # .wasm) que http-crawl-non_statics prend pour un robot. Idem : recreer apres un pull.
+      - ./crowdsec/parsers/codecommun-onlyoffice-whitelist.yaml:/etc/crowdsec/parsers/s02-enrich/codecommun-onlyoffice-whitelist.yaml:ro
+      # Liste blanche maison : appels de l'admin Ghost sans session (403 normaux sur
+      # /ghost/api/admin/...) que http-admin-interface-probing prend pour un scan. Idem.
+      - ./crowdsec/parsers/codecommun-ghost-whitelist.yaml:/etc/crowdsec/parsers/s02-enrich/codecommun-ghost-whitelist.yaml:ro
       - ./crowdsec/data:/var/lib/crowdsec/data
     environment:
       - TZ=Europe/Paris

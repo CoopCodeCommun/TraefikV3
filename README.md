@@ -478,6 +478,60 @@ concernés, car d'anciens liens WordPress circulent encore.
 - Un membre de l'équipe qui teste `/.env` sur nos sites se bannit lui-même :
   `docker exec crowdsec cscli decisions delete --ip <son IP>`.
 
+**Liste blanche OnlyOffice `codecommun/onlyoffice-whitelist`**
+(`crowdsec/parsers/codecommun-onlyoffice-whitelist.yaml`, monté dans les deux
+variantes) : quand on ouvre un document, l'éditeur OnlyOffice charge environ
+260 fichiers en 3 secondes. Ce sont des gabarits `.template`, des `.json`, des
+`.wasm`, des polices sans extension (`fonts/001`) et `Editor.bin`. CrowdSec ne
+les compte pas comme statiques, et `http-crawl-non_statics` bannit
+l'utilisateur pendant 24 h, sur **tous** les services derrière ce Traefik.
+C'est arrivé le 24/11/2026 sur miete-aorus : un ban depuis
+onlyoffice.lamiete.fr qui coupait aussi la radio. La liste blanche Nextcloud du
+hub (`PARSERS=`) ne couvre pas OnlyOffice. Celle-ci reste étroite : elle
+n'ignore que les `GET` et `HEAD` sur les chemins préfixés par la version
+d'OnlyOffice (`/10.0.0-<hash>/web-apps/`, `sdkjs`, `fonts`…) et sur
+`/cache/files/data/`, quand la réponse est 101, 200, 206 ou 304, et sans `..`,
+`%2e` ni double encodage (`%25`) dans la requête. Le préfixe n'est pas un
+secret, puisque OnlyOffice accepte n'importe quelle version. C'est la réponse
+200 qui protège : un scanner qui invente des chemins reçoit des 404 et reste
+compté. Les autres motifs d'attaque en query string (`?file=/etc/passwd`)
+passent sous ces préfixes, mais n'y atteignent que les fichiers d'OnlyOffice.
+Ne sont pas couverts : OnlyOffice 7.x (`/cache/files/<id>/` sans `data/`) et
+OnlyOffice servi dans un sous-dossier. Le motif ne contient aucun nom d'hôte :
+il vaut pour toutes les instances.
+
+**Liste blanche Ghost `codecommun/ghost-whitelist`**
+(`crowdsec/parsers/codecommun-ghost-whitelist.yaml`, monté dans les deux
+variantes) : quand on ouvre `/ghost/` sans être connecté, l'appli d'admin
+demande d'un coup `/ghost/api/admin/settings/`, `users/me/` et `config/`.
+Ghost répond 403, ce qui est normal. Mais `http-admin-interface-probing`
+réagit à un 403 ou un 404 sur un chemin qui **contient** `/admin` (3 chemins
+en 10 s) et bannit la personne. C'est arrivé le 23/11/2026 sur ccc-vm1
+(news.universitepopulairedevilleurbanne.org), et les mêmes appels venaient de
+3 IP. La liste blanche ignore les 403 sur `/ghost/api/admin/…`, quel que soit
+le verbe, sans `..`, `%2e` ni `%25`. La raison : une fois l'IP bannie, le
+bouncer répond 403, CrowdSec relit ces réponses, et l'admin Ghost resté ouvert
+boucle sur ses sauvegardes automatiques. Le 23/11, ça a donné 865 `POST` en
+6 minutes et une nouvelle décision de 7 jours chaque minute. La connexion
+(`POST /ghost/api/admin/session`) reste comptée, et Ghost limite aussi
+lui-même les essais. Les 404 sous `/ghost/api/admin/`, `/admin`, `/wp-admin`
+et les autres restent détectés. N'est pas couvert : Ghost installé dans un
+sous-dossier (`/blog/ghost/…`). Le motif ne contient aucun nom d'hôte.
+
+Déployer ou mettre à jour les deux listes blanches (fichiers montés seuls) :
+- `git pull` **avant** de lancer le conteneur, puis
+  `docker compose up -d --force-recreate crowdsec`. Un simple restart garde
+  l'ancienne version.
+- Vérifier : `docker exec crowdsec cscli parsers list | grep codecommun`
+  doit montrer `codecommun/onlyoffice-whitelist` et `codecommun/ghost-whitelist`
+  en `enabled,local`. Si une liste manque, vérifier que le fichier existe bien
+  côté hôte. Lancé sans lui (par exemple `up` avant le `git pull`), Docker crée
+  un **dossier** vide à sa place, et CrowdSec démarre sans la liste blanche et
+  sans rien signaler. Il faut alors supprimer ce dossier, faire le `git pull`
+  et recréer crowdsec.
+- Débannir une personne touchée : lui faire fermer l'onglet concerné, puis
+  `docker exec crowdsec cscli decisions delete --ip <son IP>`.
+
 **Durée des bans** (`crowdsec/profiles/profiles.yaml`, monté à la place du
 `profiles.yaml` généré) : 24 h au premier ban, 72 h au deuxième, 7 jours ensuite.
 CrowdSec garde l'historique des décisions environ 7 jours. Avant, c'était 4 h fixes,
